@@ -4,12 +4,13 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:qr_generator/ui/screens/qr_generator.dart';
 import 'package:qr_generator/ui/widgets/button.dart';
-import 'package:qr_generator/ui/widgets/loader_widget.dart';
 import 'package:qr_generator/ui/widgets/network_check.dart';
 
 import 'package:qr_generator/ui/widgets/scaffold.dart';
 import 'package:qr_generator/ui/widgets/text_field.dart';
 import 'package:qr_generator/ui/widgets/text_widget.dart';
+
+import '../widgets/loader_widget.dart';
 
 class Signin extends StatefulWidget {
   const Signin({Key? key}) : super(key: key);
@@ -28,8 +29,10 @@ class _SigninState extends State<Signin> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
+      height: MediaQuery.of(context).size.height,
       heading: "LOGIN",
       child: Column(
+        mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

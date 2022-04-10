@@ -15,7 +15,6 @@ import 'package:location/location.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-
 import 'package:qr_generator/model/lastlogin_model.dart';
 import 'package:qr_generator/ui/widgets/button.dart';
 import 'package:qr_generator/ui/widgets/loader_widget.dart';
@@ -147,7 +146,7 @@ class _QrGeneratorState extends State<QrGenerator> {
                             controller: screenshotController,
                             child: QrImage(
                               backgroundColor: Colors.white,
-                              data: "1234567890",
+                              data: generatedNumber.toString(),
                               version: QrVersions.auto,
                               size: MediaQuery.of(context).size.width * 0.45,
                             ),
@@ -246,7 +245,11 @@ class _QrGeneratorState extends State<QrGenerator> {
                                       }),
                                       getData(),
                                       LoaderWidget().showLoader(context,
-                                          showLoader: false)
+                                          showLoader: false),
+                                      Fluttertoast.showToast(
+                                          msg: "Saved",
+                                          backgroundColor: const Color.fromARGB(
+                                              255, 65, 50, 131))
                                     })
                                 .onError((error, stackTrace) => {
                                       LoaderWidget().showLoader(context,
@@ -256,7 +259,10 @@ class _QrGeneratorState extends State<QrGenerator> {
                                           backgroundColor: Colors.red)
                                     });
                           } else {
-                            Fluttertoast.showToast(msg: "Already saved");
+                            Fluttertoast.showToast(
+                                msg: "Already saved",
+                                backgroundColor:
+                                    const Color.fromARGB(255, 65, 50, 131));
                           }
                         } else {
                           Fluttertoast.showToast(
