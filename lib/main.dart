@@ -1,9 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_generator/ui/route_generator.dart';
-import 'package:qr_generator/ui/screens/last_login.dart';
-import 'package:qr_generator/ui/screens/login_page.dart';
-import 'package:qr_generator/ui/screens/qr_generator.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

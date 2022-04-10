@@ -55,10 +55,10 @@ class CustomFormField extends StatelessWidget {
             textInputAction: textInputAction,
             keyboardType: textInputType,
             obscureText: obsecureText,
-            style: TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
                 contentPadding:
-                    EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                    const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
                 hintText: hintText,
                 //  hintStyle: KTextStyle.textFieldHintStyle,
                 border: InputBorder.none,

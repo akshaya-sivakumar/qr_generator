@@ -1,4 +1,4 @@
-import 'dart:math';
+
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:qr_generator/model/lastlogin_model.dart';
 
 import 'package:qr_generator/ui/widgets/scaffold.dart';
+import 'package:qr_generator/ui/widgets/text_widget.dart';
 
 class LastLogin extends StatefulWidget {
   const LastLogin(this.lastloginlist, {Key? key}) : super(key: key);
@@ -14,28 +15,97 @@ class LastLogin extends StatefulWidget {
   State<LastLogin> createState() => _LastLoginState();
 }
 
-class _LastLoginState extends State<LastLogin> {
+class _LastLoginState extends State<LastLogin> with TickerProviderStateMixin {
+  TabController? _tabController;
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(vsync: this, length: 3);
+    _tabController?.addListener(_handleTabSelection);
+  }
+
+  void _handleTabSelection() {
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
         heading: "LAST LOGIN",
-        child: Padding(
-          padding: EdgeInsets.only(
-              top: MediaQuery.of(context).size.height * 0.05,
-              bottom: MediaQuery.of(context).size.height * 0.05),
-          child: Center(
-            child: ListView.builder(
-                itemCount: widget.lastloginlist.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return listCard(widget.lastloginlist[index]);
-                }),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.only(
+                top: MediaQuery.of(context).size.height * 0.05,
+                bottom: MediaQuery.of(context).size.height * 0.05),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DefaultTabController(
+                  length: 3,
+                  child: TabBar(
+                    controller: _tabController,
+                    indicatorWeight: 4,
+                    indicatorColor: Colors.white,
+                    isScrollable: true,
+                    tabs: [
+                      Tab(
+                          icon: TextWidget(
+                        _tabController?.index == 0 ? "TODAY" : "Today",
+                        color: Colors.white,
+                        fontSize: _tabController?.index == 0 ? 14 : 13,
+                      )),
+                      Tab(
+                        icon: TextWidget(
+                          _tabController?.index == 1
+                              ? "YESTERDAY"
+                              : "Yesterday",
+                          color: Colors.white,
+                          fontSize: _tabController?.index == 1 ? 14 : 13,
+                        ),
+                      ),
+                      Tab(
+                          icon: TextWidget(
+                        _tabController?.index == 2 ? "OTHER" : "Other",
+                        color: Colors.white,
+                        fontSize: _tabController?.index == 2 ? 14 : 13,
+                      )),
+                    ],
+                  ),
+                ),
+                listview(context),
+              ],
+            ),
           ),
         ));
+  }
+
+  List<LastloginModel> lastloginlist = [];
+  SizedBox listview(BuildContext context) {
+    lastloginlist = widget.lastloginlist
+        .where((element) => _tabController?.index == 0
+            ? DateFormat("dd-MM-yyyy")
+                    .format(DateTime.parse(element.lastlogin)) ==
+                DateFormat("dd-MM-yyyy").format(DateTime.now())
+            : _tabController?.index == 1
+                ? DateFormat("dd-MM-yyyy")
+                        .format(DateTime.parse(element.lastlogin)) ==
+                    DateFormat("dd-MM-yyyy")
+                        .format(DateTime.now().subtract(const Duration(days: 1)))
+                : DateTime.now()
+                        .difference(DateTime.parse(element.lastlogin))
+                        .inDays >
+                    2)
+        .toList();
+    return SizedBox(
+      height: MediaQuery.of(context).size.height,
+      child: ListView.builder(
+          shrinkWrap: true,
+          physics: const ScrollPhysics(),
+          itemCount: lastloginlist.length,
+          itemBuilder: (BuildContext context, int index) {
+            return listCard(lastloginlist[index]);
+          }),
+    );
   }
 
   Widget listCard(LastloginModel details) {
@@ -52,7 +122,7 @@ class _LastLoginState extends State<LastLogin> {
               margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
               height: 80,
               decoration: BoxDecoration(
-                  color: Color.fromARGB(137, 46, 45, 45),
+                  color: const Color.fromARGB(137, 46, 45, 45),
                   borderRadius: BorderRadius.circular(10)),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -62,7 +132,7 @@ class _LastLoginState extends State<LastLogin> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          DateFormat("hh:mm aa")
+                          DateFormat("dd-MM hh:mm aa")
                               .format(DateTime.parse(details.lastlogin)),
                           style: const TextStyle(color: Colors.white),
                         ),
@@ -84,27 +154,26 @@ class _LastLoginState extends State<LastLogin> {
             right: MediaQuery.of(context).size.height * 0.0499,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Container(
-                child: Image.network(
-                  details.qrimage,
-                  loadingBuilder: (BuildContext context, Widget child,
-                      ImageChunkEvent? loadingProgress) {
-                    if (loadingProgress == null)
-                      return Container(
-                        color: Colors.white,
-                        padding: const EdgeInsets.all(3.0),
-                        child: Container(child: child),
-                      );
+              child: Image.network(
+                details.qrimage,
+                loadingBuilder: (BuildContext context, Widget child,
+                    ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) {
                     return Container(
-                      margin: EdgeInsets.only(left: 30, bottom: 20),
-                      alignment: Alignment.topLeft,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                      ),
+                      color: Colors.white,
+                      padding: const EdgeInsets.all(3.0),
+                      child: Container(child: child),
                     );
-                  },
-                  width: 85,
-                ),
+                  }
+                  return Container(
+                    margin: const EdgeInsets.only(left: 30, bottom: 20),
+                    alignment: Alignment.topLeft,
+                    child: const CircularProgressIndicator(
+                      color: Colors.white,
+                    ),
+                  );
+                },
+                width: 85,
               ),
             ),
           ),

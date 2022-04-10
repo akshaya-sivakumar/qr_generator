@@ -22,7 +22,7 @@ class AuthButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        margin: EdgeInsets.all(5),
+        margin: const EdgeInsets.all(5),
         width: width ?? MediaQuery.of(context).size.width * 0.8,
         height: height ?? MediaQuery.of(context).size.height * 0.06,
         child: ElevatedButton(
@@ -32,7 +32,7 @@ class AuthButton extends StatelessWidget {
                 color: bordercolor ?? Colors.transparent,
               ),
               shape: RoundedRectangleBorder(
-                borderRadius: new BorderRadius.circular(10.0),
+                borderRadius: BorderRadius.circular(10.0),
               ),
               primary: color ?? Colors.grey[700],
               padding: EdgeInsets.zero // background

@@ -14,7 +14,7 @@ import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:qr_generator/main.dart';
+
 import 'package:qr_generator/model/lastlogin_model.dart';
 import 'package:qr_generator/ui/widgets/button.dart';
 import 'package:qr_generator/ui/widgets/loader_widget.dart';
@@ -239,7 +239,6 @@ class _QrGeneratorState extends State<QrGenerator> {
                               .onError((error, stackTrace) => {
                                     LoaderWidget()
                                         .showLoader(context, showLoader: false),
-                                    print(error),
                                     Fluttertoast.showToast(
                                         msg: error.toString(),
                                         backgroundColor: Colors.red)

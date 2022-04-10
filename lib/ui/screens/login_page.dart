@@ -2,10 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-import 'package:qr_generator/main.dart';
+
 import 'package:qr_generator/ui/screens/qr_generator.dart';
 import 'package:qr_generator/ui/widgets/button.dart';
-import 'package:qr_generator/ui/widgets/loader_widget.dart';
+
 
 import 'package:qr_generator/ui/widgets/scaffold.dart';
 import 'package:qr_generator/ui/widgets/text_field.dart';
@@ -59,14 +59,14 @@ class _SigninState extends State<Signin> {
                       verifiedId = verificationId;
                       Fluttertoast.showToast(
                           msg: "Otp Sent",
-                          backgroundColor: Color.fromARGB(255, 65, 50, 131));
+                          backgroundColor: const Color.fromARGB(255, 65, 50, 131));
                     },
                     codeAutoRetrievalTimeout: (String verificationId) {},
                   )
                       .then((value) {
                     Fluttertoast.showToast(
                         msg: "Sending Otp...",
-                        backgroundColor: Color.fromARGB(255, 65, 50, 131));
+                        backgroundColor: const Color.fromARGB(255, 65, 50, 131));
                   }).catchError((onError) {
                     Fluttertoast.showToast(
                         msg: onError.toString(), backgroundColor: Colors.red);
@@ -79,11 +79,11 @@ class _SigninState extends State<Signin> {
             textInputType: TextInputType.phone,
             prefixIcon: Container(
               width: 10,
-              padding: EdgeInsets.only(left: 6),
+              padding: const EdgeInsets.only(left: 6),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
+                children: const [
                   TextWidget(
                     "+91",
                     color: Colors.white,
@@ -98,7 +98,7 @@ class _SigninState extends State<Signin> {
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
-            children: [],
+            children: const [],
           ),
           SizedBox(
             height: MediaQuery.of(context).size.width * 0.009,
@@ -109,7 +109,7 @@ class _SigninState extends State<Signin> {
             textInputAction: TextInputAction.done,
             textInputType: TextInputType.number,
             obsecureText: false,
-            suffixIcon: SizedBox(
+            suffixIcon: const SizedBox(
               width: 3,
             ),
             controller: _otpController,
