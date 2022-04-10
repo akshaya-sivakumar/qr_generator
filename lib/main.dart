@@ -1,0 +1,36 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:qr_generator/ui/screens/last_login.dart';
+import 'package:qr_generator/ui/screens/login_page.dart';
+import 'package:qr_generator/ui/screens/qr_generator.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  static dynamic arguments;
+  const MyApp({Key? key}) : super(key: key);
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      navigatorKey: navigatorKey,
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      initialRoute: "/",
+      routes: {
+        '/': (context) => const Signin(),
+        '/second': (context) => QrGenerator(arguments),
+        '/lastlogin': (context) => LastLogin(arguments),
+      },
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}

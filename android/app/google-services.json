@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "286379151077",
+    "project_id": "qr-generator-248ef",
+    "storage_bucket": "qr-generator-248ef.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:286379151077:android:d3921032c1719fdb654e0c",
+        "android_client_info": {
+          "package_name": "com.example.qr_generator"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "286379151077-fksao50ut9cmsa66cm6rd5kiufsvbeko.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPTRF7ypONYOUeSW_CfW494tTmGFolC9Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "286379151077-fksao50ut9cmsa66cm6rd5kiufsvbeko.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
