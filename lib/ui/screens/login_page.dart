@@ -130,7 +130,7 @@ class _SigninState extends State<Signin> {
           AuthButton(
             onTap: () async {
               if (await ConnectivityCheck().checkConnectivity()) {
-                /*   if (_otpController.text != "" &&
+                if (_otpController.text != "" &&
                     _otpController.text.length == 6) {
                   LoaderWidget().showLoader(context,
                       showLoader: true, text: "Please wait..");
@@ -157,11 +157,7 @@ class _SigninState extends State<Signin> {
                 } else {
                   Fluttertoast.showToast(
                       msg: "Invalid otp", backgroundColor: Colors.red);
-                } */
-
-                Navigator.of(context).pushNamed("/qrgenerator",
-                    arguments: QrArguments(DateTime.now().toString(),
-                        "+91" + _phonenumberController.text));
+                }
               } else {
                 Fluttertoast.showToast(
                     msg: "No Internet Connection", backgroundColor: Colors.red);

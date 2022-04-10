@@ -15,6 +15,7 @@ import 'package:location/location.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+
 import 'package:qr_generator/model/lastlogin_model.dart';
 import 'package:qr_generator/ui/widgets/button.dart';
 import 'package:qr_generator/ui/widgets/loader_widget.dart';
@@ -95,6 +96,8 @@ class _QrGeneratorState extends State<QrGenerator> {
   }
 
   Future<void> getData() async {
+    await Future.delayed(const Duration(milliseconds: 50));
+    LoaderWidget().showLoader(context, showLoader: true, text: "Loading..");
     var data = await FirebaseFirestore.instance
         .collection("login_details")
         .where("phonenumber", isEqualTo: widget.qrArguments.phoneNumber)
@@ -105,6 +108,7 @@ class _QrGeneratorState extends State<QrGenerator> {
 
     lastloginList.sort((a, b) =>
         DateTime.parse(b.lastlogin).compareTo(DateTime.parse(a.lastlogin)));
+    LoaderWidget().showLoader(context, showLoader: false);
   }
 
   @override
@@ -219,7 +223,7 @@ class _QrGeneratorState extends State<QrGenerator> {
                           await getQrimage();
                           if (disableSavebutton == false) {
                             LoaderWidget().showLoader(context,
-                                showLoader: true, text: "Saving..");
+                                showLoader: true, text: "Saving...");
                             TaskSnapshot uploadTask = await FirebaseStorage
                                 .instance
                                 .ref("images/qrimage")

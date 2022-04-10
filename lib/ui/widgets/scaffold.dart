@@ -49,7 +49,7 @@ class _AppScaffoldState extends State<AppScaffold> {
               top: MediaQuery.of(context).size.height * 0.069,
               child: Center(
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
                   height: 40,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(

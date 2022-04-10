@@ -96,9 +96,9 @@ class _LastLoginState extends State<LastLogin> with TickerProviderStateMixin {
         .toList();
     return Container(
       child: lastloginlist.isEmpty
-          ? Container(
+          ? SizedBox(
               height: MediaQuery.of(context).size.height * 0.7,
-              child: TextWidget("No data found", color: Colors.white))
+              child: const TextWidget("No data found", color: Colors.white))
           : ListView.builder(
               shrinkWrap: true,
               physics: const ScrollPhysics(),
@@ -133,7 +133,7 @@ class _LastLoginState extends State<LastLogin> with TickerProviderStateMixin {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          DateFormat("dd-MM hh:mm aa")
+                          DateFormat("hh:mm aa")
                               .format(DateTime.parse(details.lastlogin)),
                           style: const TextStyle(color: Colors.white),
                         ),
@@ -155,28 +155,27 @@ class _LastLoginState extends State<LastLogin> with TickerProviderStateMixin {
             right: MediaQuery.of(context).size.height * 0.0499,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Container(
-                color: Colors.white,
-                padding: const EdgeInsets.all(3.0),
-                child: Image.network(
-                  details.qrimage,
-                  loadingBuilder: (BuildContext context, Widget child,
-                      ImageChunkEvent? loadingProgress) {
-                    print(loadingProgress);
-                    if (loadingProgress == null) {
-                      return Container(child: child);
-                    }
-                    return Center(
+              child: Image.network(
+                details.qrimage,
+                loadingBuilder: (BuildContext context, Widget child,
+                    ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) {
+                    return DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: child);
+                  } else {
+                    return const Center(
                       child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
-                            : null,
+                        color: Colors.white,
                       ),
                     );
-                  },
-                  width: 85,
-                ),
+                  }
+                },
+                width: 85,
               ),
             ),
           ),

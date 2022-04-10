@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class LoaderWidget {
   void showLoader(BuildContext context,
       {bool showLoader = false, String? text}) {
@@ -16,7 +15,6 @@ class LoaderWidget {
                         borderRadius: BorderRadius.all(Radius.circular(8.0))),
                     backgroundColor: Colors.white,
                     content: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         const Padding(
                           padding: EdgeInsets.only(right: 10.0),
@@ -24,6 +22,9 @@ class LoaderWidget {
                               strokeWidth: 4,
                               valueColor:
                                   AlwaysStoppedAnimation<Color>(Colors.black)),
+                        ),
+                        const SizedBox(
+                          width: 10,
                         ),
                         Text(
                           text ?? "",
