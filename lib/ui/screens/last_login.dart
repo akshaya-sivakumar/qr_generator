@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'package:qr_generator/model/lastlogin_model.dart';
 
@@ -14,16 +15,9 @@ class LastLogin extends StatefulWidget {
 }
 
 class _LastLoginState extends State<LastLogin> {
-  int generatedNumber = 0;
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  String get email => _emailController.text.trim();
-  String get password => _passwordController.text.trim();
   @override
   void initState() {
     super.initState();
-    generatedNumber = Random().nextInt(90000) + 9999;
   }
 
   @override
@@ -46,9 +40,9 @@ class _LastLoginState extends State<LastLogin> {
 
   Widget listCard(LastloginModel details) {
     return SizedBox(
-      height: 150,
+      height: 120,
       child: Stack(
-        alignment: AlignmentDirectional.topStart,
+        alignment: AlignmentDirectional.topCenter,
         children: [
           Positioned(
             child: Container(
@@ -58,8 +52,8 @@ class _LastLoginState extends State<LastLogin> {
               margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
               height: 80,
               decoration: BoxDecoration(
-                  color: Colors.grey[700],
-                  borderRadius: BorderRadius.circular(15)),
+                  color: Color.fromARGB(137, 46, 45, 45),
+                  borderRadius: BorderRadius.circular(10)),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -68,11 +62,12 @@ class _LastLoginState extends State<LastLogin> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          details.lastlogin,
+                          DateFormat("hh:mm aa")
+                              .format(DateTime.parse(details.lastlogin)),
                           style: const TextStyle(color: Colors.white),
                         ),
                         Text(
-                          details.userip,
+                          "IP:" + details.userip,
                           style: const TextStyle(color: Colors.white),
                         ),
                         Text(
@@ -85,14 +80,31 @@ class _LastLoginState extends State<LastLogin> {
             ),
           ),
           Positioned(
-            bottom: 55,
-            left: 260,
-            child: Container(
-              decoration:
-                  BoxDecoration(borderRadius: BorderRadius.circular(50)),
-              child: Image.network(
-                details.qrimage,
-                width: 85,
+            bottom: 25,
+            right: MediaQuery.of(context).size.height * 0.0499,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                child: Image.network(
+                  details.qrimage,
+                  loadingBuilder: (BuildContext context, Widget child,
+                      ImageChunkEvent? loadingProgress) {
+                    if (loadingProgress == null)
+                      return Container(
+                        color: Colors.white,
+                        padding: const EdgeInsets.all(3.0),
+                        child: Container(child: child),
+                      );
+                    return Container(
+                      margin: EdgeInsets.only(left: 30, bottom: 20),
+                      alignment: Alignment.topLeft,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                      ),
+                    );
+                  },
+                  width: 85,
+                ),
               ),
             ),
           ),

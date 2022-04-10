@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart' as geo;
+import 'package:intl/intl.dart';
 
 import 'package:location/location.dart';
 import 'package:path_provider/path_provider.dart';
@@ -81,8 +82,7 @@ class _QrGeneratorState extends State<QrGenerator> {
       geo.Placemark place = p[0];
 
       setState(() {
-        _currentAddress =
-            "${place.locality},${place.administrativeArea},${place.country}";
+        _currentAddress = "${place.locality},${place.administrativeArea}";
       });
     } catch (e) {
       debugPrint(e.toString());
@@ -101,17 +101,21 @@ class _QrGeneratorState extends State<QrGenerator> {
     for (var element in data.docs) {
       lastloginList.add(LastloginModel.fromJson(element.data()));
     }
+
+    lastloginList.sort((a, b) =>
+        DateTime.parse(b.lastlogin).compareTo(DateTime.parse(a.lastlogin)));
   }
 
   @override
   Widget build(BuildContext context) {
-    getQrimage();
     return AppScaffold(
         heading: "PLUGIN",
-        child: Padding(
+        child: Container(
+          margin: EdgeInsets.only(
+              bottom: MediaQuery.of(context).size.height * 0.033),
           padding: EdgeInsets.only(
-              top: MediaQuery.of(context).size.height * 0.1,
-              bottom: MediaQuery.of(context).size.height * 0.05),
+            top: MediaQuery.of(context).size.height * 0.1,
+          ),
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -173,13 +177,17 @@ class _QrGeneratorState extends State<QrGenerator> {
                 ),
                 Column(
                   children: [
-                    InkWell(
-                      onTap: () {
-                        MyApp.arguments = lastloginList;
-                        MyApp.navigatorKey.currentState
-                            ?.pushNamed("/lastlogin");
-                      },
-                      child: Container(
+                    AuthButton(
+                        onTap: () {
+                          Navigator.of(context).pushNamed("/lastlogin",
+                              arguments: lastloginList);
+                        },
+                        text: "Last login at Today, " +
+                            DateFormat("hh:mm aa").format(DateTime.now()),
+                        bordercolor: Colors.white,
+                        color: Colors.transparent
+                        /*  child: Container(
+                        height: MediaQuery.of(context).size.height * 0.06,
                         width: MediaQuery.of(context).size.width * 0.7,
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
@@ -193,44 +201,56 @@ class _QrGeneratorState extends State<QrGenerator> {
                           textAlign: TextAlign.end,
                           color: Colors.white,
                         ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
+                      ), */
+                        ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.0002,
                     ),
                     AuthButton(
-                        onTap: () async {
-                          if (disableSavebutton == false) {
-                            LoaderWidget().showLoader(context,
-                                showLoader: true, text: "Saving..");
-                            TaskSnapshot uploadTask = await FirebaseStorage
-                                .instance
-                                .ref("images/qrimage")
-                                .putFile(qrimage!);
-                            String? url = await uploadTask.ref.getDownloadURL();
-                            print("download url : $url");
-                            await FirebaseFirestore.instance
-                                .collection("login_details")
-                                .add({
-                              "phonenumber": widget.qrArguments.phoneNumber,
-                              "lastlogin": widget.qrArguments.lastLogin,
-                              "userip": ipv6,
-                              "location": _currentAddress,
-                              "qrnumber": generatedNumber.toString(),
-                              "qrimage": url
-                            }).then((value) => {
-                                      setState(() {
-                                        disableSavebutton = true;
-                                      }),
-                                      getData(),
-                                      LoaderWidget().showLoader(context,
-                                          showLoader: false)
-                                    });
-                          } else {
-                            Fluttertoast.showToast(msg: "Already saved");
-                          }
-                        },
-                        text: "SAVE"),
+                      onTap: () async {
+                        await getQrimage();
+                        if (disableSavebutton == false) {
+                          LoaderWidget().showLoader(context,
+                              showLoader: true, text: "Saving..");
+                          TaskSnapshot uploadTask = await FirebaseStorage
+                              .instance
+                              .ref("images/qrimage")
+                              .putFile(qrimage!);
+                          String? url = await uploadTask.ref.getDownloadURL();
+                          print("download url : $url");
+                          await FirebaseFirestore.instance
+                              .collection("login_details")
+                              .add({
+                                "phonenumber": widget.qrArguments.phoneNumber,
+                                "lastlogin": widget.qrArguments.lastLogin,
+                                "userip": ipv6,
+                                "location": _currentAddress,
+                                "qrnumber": generatedNumber.toString(),
+                                "qrimage": url
+                              })
+                              .then((value) => {
+                                    setState(() {
+                                      disableSavebutton = true;
+                                    }),
+                                    getData(),
+                                    LoaderWidget()
+                                        .showLoader(context, showLoader: false)
+                                  })
+                              .onError((error, stackTrace) => {
+                                    LoaderWidget()
+                                        .showLoader(context, showLoader: false),
+                                    print(error),
+                                    Fluttertoast.showToast(
+                                        msg: error.toString(),
+                                        backgroundColor: Colors.red)
+                                  });
+                        } else {
+                          Fluttertoast.showToast(msg: "Already saved");
+                        }
+                      },
+                      text: "SAVE",
+                      fontweight: FontWeight.bold,
+                    ),
                   ],
                 )
               ],
@@ -239,18 +259,15 @@ class _QrGeneratorState extends State<QrGenerator> {
         ));
   }
 
-  void getQrimage() {
-    screenshotController
-        .capture(delay: const Duration(milliseconds: 10))
-        .then((capturedImage) async {
-      qrimage = File.fromRawPath(capturedImage!);
-      final directory = await getApplicationDocumentsDirectory();
-      final imagePath = await File('${directory.path}/qrimage.png').create();
-      await imagePath.writeAsBytes(capturedImage);
+  getQrimage() async {
+    var capturedImage = await screenshotController.capture(
+        delay: const Duration(milliseconds: 10));
 
-      qrimage = File(imagePath.path);
-    }).catchError((onError) {
-      debugPrint(onError);
-    });
+    qrimage = File.fromRawPath(capturedImage!);
+    final directory = await getApplicationDocumentsDirectory();
+    final imagePath = await File('${directory.path}/qrimage.png').create();
+    await imagePath.writeAsBytes(capturedImage);
+
+    qrimage = File(imagePath.path);
   }
 }

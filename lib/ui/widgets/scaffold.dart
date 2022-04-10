@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-
 class AppScaffold extends StatefulWidget {
   const AppScaffold({Key? key, required this.child, required this.heading})
       : super(key: key);
@@ -59,7 +58,7 @@ class _AppScaffoldState extends State<AppScaffold> {
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
                       widget.heading,
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
                     ),
                   ),
                 ),
