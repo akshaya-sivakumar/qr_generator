@@ -18,6 +18,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:qr_generator/model/lastlogin_model.dart';
 import 'package:qr_generator/ui/widgets/button.dart';
 import 'package:qr_generator/ui/widgets/loader_widget.dart';
+import 'package:qr_generator/ui/widgets/network_check.dart';
 
 import 'package:qr_generator/ui/widgets/scaffold.dart';
 
@@ -178,9 +179,15 @@ class _QrGeneratorState extends State<QrGenerator> {
                 Column(
                   children: [
                     AuthButton(
-                        onTap: () {
-                          Navigator.of(context).pushNamed("/lastlogin",
-                              arguments: lastloginList);
+                        onTap: () async {
+                          if (await ConnectivityCheck().checkConnectivity()) {
+                            Navigator.of(context).pushNamed("/lastlogin",
+                                arguments: lastloginList);
+                          } else {
+                            Fluttertoast.showToast(
+                                msg: "No Internet Connection",
+                                backgroundColor: Colors.red);
+                          }
                         },
                         text: "Last login at Today, " +
                             DateFormat("hh:mm aa").format(DateTime.now()),
@@ -208,43 +215,49 @@ class _QrGeneratorState extends State<QrGenerator> {
                     ),
                     AuthButton(
                       onTap: () async {
-                        await getQrimage();
-                        if (disableSavebutton == false) {
-                          LoaderWidget().showLoader(context,
-                              showLoader: true, text: "Saving..");
-                          TaskSnapshot uploadTask = await FirebaseStorage
-                              .instance
-                              .ref("images/qrimage")
-                              .putFile(qrimage!);
-                          String? url = await uploadTask.ref.getDownloadURL();
-                          print("download url : $url");
-                          await FirebaseFirestore.instance
-                              .collection("login_details")
-                              .add({
-                                "phonenumber": widget.qrArguments.phoneNumber,
-                                "lastlogin": widget.qrArguments.lastLogin,
-                                "userip": ipv6,
-                                "location": _currentAddress,
-                                "qrnumber": generatedNumber.toString(),
-                                "qrimage": url
-                              })
-                              .then((value) => {
-                                    setState(() {
-                                      disableSavebutton = true;
-                                    }),
-                                    getData(),
-                                    LoaderWidget()
-                                        .showLoader(context, showLoader: false)
-                                  })
-                              .onError((error, stackTrace) => {
-                                    LoaderWidget()
-                                        .showLoader(context, showLoader: false),
-                                    Fluttertoast.showToast(
-                                        msg: error.toString(),
-                                        backgroundColor: Colors.red)
-                                  });
+                        if (await ConnectivityCheck().checkConnectivity()) {
+                          await getQrimage();
+                          if (disableSavebutton == false) {
+                            LoaderWidget().showLoader(context,
+                                showLoader: true, text: "Saving..");
+                            TaskSnapshot uploadTask = await FirebaseStorage
+                                .instance
+                                .ref("images/qrimage")
+                                .putFile(qrimage!);
+                            String? url = await uploadTask.ref.getDownloadURL();
+
+                            await FirebaseFirestore.instance
+                                .collection("login_details")
+                                .add({
+                                  "phonenumber": widget.qrArguments.phoneNumber,
+                                  "lastlogin": widget.qrArguments.lastLogin,
+                                  "userip": ipv6,
+                                  "location": _currentAddress,
+                                  "qrnumber": generatedNumber.toString(),
+                                  "qrimage": url
+                                })
+                                .then((value) => {
+                                      setState(() {
+                                        disableSavebutton = true;
+                                      }),
+                                      getData(),
+                                      LoaderWidget().showLoader(context,
+                                          showLoader: false)
+                                    })
+                                .onError((error, stackTrace) => {
+                                      LoaderWidget().showLoader(context,
+                                          showLoader: false),
+                                      Fluttertoast.showToast(
+                                          msg: error.toString(),
+                                          backgroundColor: Colors.red)
+                                    });
+                          } else {
+                            Fluttertoast.showToast(msg: "Already saved");
+                          }
                         } else {
-                          Fluttertoast.showToast(msg: "Already saved");
+                          Fluttertoast.showToast(
+                              msg: "No Internet Connection",
+                              backgroundColor: Colors.red);
                         }
                       },
                       text: "SAVE",

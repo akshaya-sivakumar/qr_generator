@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -80,7 +78,7 @@ class _LastLoginState extends State<LastLogin> with TickerProviderStateMixin {
   }
 
   List<LastloginModel> lastloginlist = [];
-  SizedBox listview(BuildContext context) {
+  Widget listview(BuildContext context) {
     lastloginlist = widget.lastloginlist
         .where((element) => _tabController?.index == 0
             ? DateFormat("dd-MM-yyyy")
@@ -89,22 +87,25 @@ class _LastLoginState extends State<LastLogin> with TickerProviderStateMixin {
             : _tabController?.index == 1
                 ? DateFormat("dd-MM-yyyy")
                         .format(DateTime.parse(element.lastlogin)) ==
-                    DateFormat("dd-MM-yyyy")
-                        .format(DateTime.now().subtract(const Duration(days: 1)))
+                    DateFormat("dd-MM-yyyy").format(
+                        DateTime.now().subtract(const Duration(days: 1)))
                 : DateTime.now()
                         .difference(DateTime.parse(element.lastlogin))
                         .inDays >
                     2)
         .toList();
-    return SizedBox(
-      height: MediaQuery.of(context).size.height,
-      child: ListView.builder(
-          shrinkWrap: true,
-          physics: const ScrollPhysics(),
-          itemCount: lastloginlist.length,
-          itemBuilder: (BuildContext context, int index) {
-            return listCard(lastloginlist[index]);
-          }),
+    return Container(
+      child: lastloginlist.isEmpty
+          ? Container(
+              height: MediaQuery.of(context).size.height * 0.7,
+              child: TextWidget("No data found", color: Colors.white))
+          : ListView.builder(
+              shrinkWrap: true,
+              physics: const ScrollPhysics(),
+              itemCount: lastloginlist.length,
+              itemBuilder: (BuildContext context, int index) {
+                return listCard(lastloginlist[index]);
+              }),
     );
   }
 
@@ -154,26 +155,28 @@ class _LastLoginState extends State<LastLogin> with TickerProviderStateMixin {
             right: MediaQuery.of(context).size.height * 0.0499,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Image.network(
-                details.qrimage,
-                loadingBuilder: (BuildContext context, Widget child,
-                    ImageChunkEvent? loadingProgress) {
-                  if (loadingProgress == null) {
-                    return Container(
-                      color: Colors.white,
-                      padding: const EdgeInsets.all(3.0),
-                      child: Container(child: child),
+              child: Container(
+                color: Colors.white,
+                padding: const EdgeInsets.all(3.0),
+                child: Image.network(
+                  details.qrimage,
+                  loadingBuilder: (BuildContext context, Widget child,
+                      ImageChunkEvent? loadingProgress) {
+                    print(loadingProgress);
+                    if (loadingProgress == null) {
+                      return Container(child: child);
+                    }
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes!
+                            : null,
+                      ),
                     );
-                  }
-                  return Container(
-                    margin: const EdgeInsets.only(left: 30, bottom: 20),
-                    alignment: Alignment.topLeft,
-                    child: const CircularProgressIndicator(
-                      color: Colors.white,
-                    ),
-                  );
-                },
-                width: 85,
+                  },
+                  width: 85,
+                ),
               ),
             ),
           ),

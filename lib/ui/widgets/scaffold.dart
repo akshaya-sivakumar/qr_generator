@@ -22,6 +22,7 @@ class _AppScaffoldState extends State<AppScaffold> {
     return Scaffold(
       body: SafeArea(
           child: Stack(
+        alignment: AlignmentDirectional.center,
         children: [
           SvgPicture.asset("assets/background.svg",
               width: MediaQuery.of(context).size.width, fit: BoxFit.fill),
@@ -44,11 +45,11 @@ class _AppScaffoldState extends State<AppScaffold> {
                           topRight: Radius.circular(40))),
                   child: widget.child)),
           Positioned(
-              left: MediaQuery.of(context).size.width * 0.38,
+              //left: MediaQuery.of(context).size.width * 0.38,
               top: MediaQuery.of(context).size.height * 0.069,
               child: Center(
                 child: Container(
-                  width: 100,
+                  padding: EdgeInsets.symmetric(horizontal: 10),
                   height: 40,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
@@ -58,7 +59,9 @@ class _AppScaffoldState extends State<AppScaffold> {
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
                       widget.heading,
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: MediaQuery.of(context).size.width * 0.04),
                     ),
                   ),
                 ),

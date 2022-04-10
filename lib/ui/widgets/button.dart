@@ -37,7 +37,7 @@ class AuthButton extends StatelessWidget {
               primary: color ?? Colors.grey[700],
               padding: EdgeInsets.zero // background
               ),
-          onPressed: onTap,
+          onPressed:  onTap,
           child: TextWidget(
             text,
             textAlign: TextAlign.center,
