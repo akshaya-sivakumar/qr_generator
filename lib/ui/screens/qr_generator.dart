@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dart_ipify/dart_ipify.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,6 +24,7 @@ import 'package:qr_generator/ui/widgets/network_check.dart';
 import 'package:qr_generator/ui/widgets/scaffold.dart';
 
 import 'package:qr_generator/ui/widgets/text_widget.dart';
+import 'package:qr_generator/ui/widgets/toast_widget.dart';
 import 'package:screenshot/screenshot.dart';
 
 class QrArguments {
@@ -43,20 +45,18 @@ class _QrGeneratorState extends State<QrGenerator> {
   ScreenshotController screenshotController = ScreenshotController();
   File? qrimage;
   bool disableSavebutton = false;
-  String? _currentAddress;
+  String? _currentAddress, userId;
   String? ipv6;
   @override
   void initState() {
     super.initState();
-    getData();
+
     getIp();
     getUserLocation();
     generatedNumber = Random().nextInt(90000) + 9999;
   }
 
   getUserLocation() async {
-    //call this async method from whereever you need
-
     LocationData? myLocation;
     String? error;
     Location location = Location();
@@ -69,10 +69,8 @@ class _QrGeneratorState extends State<QrGenerator> {
       if (e.code == 'PERMISSION_DENIED') {
         error = 'please grant permission';
       }
-      if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {
-        error = 'permission denied- please enable it from app settings';
-      }
-      debugPrint(error);
+      if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {}
+      debugPrint(e.message);
     }
   }
 
@@ -85,22 +83,30 @@ class _QrGeneratorState extends State<QrGenerator> {
       setState(() {
         _currentAddress = "${place.locality},${place.administrativeArea}";
       });
+      await saveData();
     } catch (e) {
-      debugPrint(e.toString());
+      //debugPrint(e.toString());
     }
   }
 
   void getIp() async {
+    await Future.delayed(const Duration(milliseconds: 50));
+
+    LoaderWidget().showLoader(context, showLoader: true, text: "Saving..");
     ipv6 = await Ipify.ipv4();
+    print(ipv6);
   }
 
-  Future<void> getData() async {
-    await Future.delayed(const Duration(milliseconds: 50));
-    LoaderWidget().showLoader(context, showLoader: true, text: "Loading..");
+  Future<void> getData({bool loading = false}) async {
+    lastloginList = [];
+    if (loading) {
+      LoaderWidget().showLoader(context, showLoader: true, text: "Saving..");
+    } 
     var data = await FirebaseFirestore.instance
         .collection("login_details")
         .where("phonenumber", isEqualTo: widget.qrArguments.phoneNumber)
         .get();
+    lastloginList = [];
     for (var element in data.docs) {
       lastloginList.add(LastloginModel.fromJson(element.data()));
     }
@@ -113,6 +119,7 @@ class _QrGeneratorState extends State<QrGenerator> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
+        logout: true,
         heading: "PLUGIN",
         child: Container(
           margin: EdgeInsets.only(
@@ -195,24 +202,7 @@ class _QrGeneratorState extends State<QrGenerator> {
                         text: "Last login at Today, " +
                             DateFormat("hh:mm aa").format(DateTime.now()),
                         bordercolor: Colors.white,
-                        color: Colors.transparent
-                        /*  child: Container(
-                        height: MediaQuery.of(context).size.height * 0.06,
-                        width: MediaQuery.of(context).size.width * 0.7,
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.white,
-                            ),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(10))),
-                        child: const TextWidget(
-                          "Last login at Today, 11pm",
-                          textAlign: TextAlign.end,
-                          color: Colors.white,
-                        ),
-                      ), */
-                        ),
+                        color: Colors.transparent),
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.0002,
                     ),
@@ -231,11 +221,8 @@ class _QrGeneratorState extends State<QrGenerator> {
 
                             await FirebaseFirestore.instance
                                 .collection("login_details")
-                                .add({
-                                  "phonenumber": widget.qrArguments.phoneNumber,
-                                  "lastlogin": widget.qrArguments.lastLogin,
-                                  "userip": ipv6,
-                                  "location": _currentAddress,
+                                .doc(userId)
+                                .update({
                                   "qrnumber": generatedNumber.toString(),
                                   "qrimage": url
                                 })
@@ -243,7 +230,7 @@ class _QrGeneratorState extends State<QrGenerator> {
                                       setState(() {
                                         disableSavebutton = true;
                                       }),
-                                      getData(),
+                                      getData(loading: true),
                                       LoaderWidget().showLoader(context,
                                           showLoader: false),
                                       Fluttertoast.showToast(
@@ -279,6 +266,28 @@ class _QrGeneratorState extends State<QrGenerator> {
             ),
           ),
         ));
+  }
+
+  Future<void> saveData() async {
+    await FirebaseFirestore.instance
+        .collection("login_details")
+        .add({
+          "phonenumber": widget.qrArguments.phoneNumber,
+          "lastlogin": widget.qrArguments.lastLogin,
+          "userip": ipv6,
+          "location": _currentAddress,
+        })
+        .then((value) => {
+              userId = value.id,
+              getData(),
+              Fluttertoast.showToast(
+                  msg: "Login details Saved",
+                  backgroundColor: const Color.fromARGB(255, 65, 50, 131))
+            })
+        .onError((error, stackTrace) => {
+              Fluttertoast.showToast(
+                  msg: error.toString(), backgroundColor: Colors.red)
+            });
   }
 
   getQrimage() async {

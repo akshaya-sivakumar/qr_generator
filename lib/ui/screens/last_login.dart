@@ -29,6 +29,8 @@ class _LastLoginState extends State<LastLogin> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
+        back: true,
+        logout: true,
         heading: "LAST LOGIN",
         child: SingleChildScrollView(
           child: Padding(
@@ -150,35 +152,36 @@ class _LastLoginState extends State<LastLogin> with TickerProviderStateMixin {
               ),
             ),
           ),
-          Positioned(
-            bottom: 25,
-            right: MediaQuery.of(context).size.height * 0.0499,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.network(
-                details.qrimage,
-                loadingBuilder: (BuildContext context, Widget child,
-                    ImageChunkEvent? loadingProgress) {
-                  if (loadingProgress == null) {
-                    return DecoratedBox(
-                        decoration: BoxDecoration(
+          if (details.qrimage != "")
+            Positioned(
+              bottom: 25,
+              right: MediaQuery.of(context).size.height * 0.0499,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.network(
+                  details.qrimage,
+                  loadingBuilder: (BuildContext context, Widget child,
+                      ImageChunkEvent? loadingProgress) {
+                    if (loadingProgress == null) {
+                      return DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: child);
+                    } else {
+                      return const Center(
+                        child: CircularProgressIndicator(
                           color: Colors.white,
-                          border: Border.all(),
-                          borderRadius: BorderRadius.circular(20),
                         ),
-                        child: child);
-                  } else {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                      ),
-                    );
-                  }
-                },
-                width: 85,
+                      );
+                    }
+                  },
+                  width: 85,
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

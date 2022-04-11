@@ -17,8 +17,8 @@ class LastloginModel {
   LastloginModel.fromJson(Map<String, dynamic> json) {
     phonenumber = json['phonenumber'] ?? "";
     lastlogin = json['lastlogin'] ?? "";
-    userip = json['userip'] ?? "";
-    location = json['location'] ?? "";
+    userip = json['userip'] ?? " - ";
+    location = json['location'] ?? " - ";
     qrnumber = json['qrnumber'] ?? "";
     qrimage = json['qrimage'] ?? "";
   }

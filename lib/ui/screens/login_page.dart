@@ -1,6 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:location/location.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'package:qr_generator/ui/screens/qr_generator.dart';
 import 'package:qr_generator/ui/widgets/button.dart';
@@ -9,8 +12,10 @@ import 'package:qr_generator/ui/widgets/network_check.dart';
 import 'package:qr_generator/ui/widgets/scaffold.dart';
 import 'package:qr_generator/ui/widgets/text_field.dart';
 import 'package:qr_generator/ui/widgets/text_widget.dart';
+import 'package:qr_generator/ui/widgets/toast_widget.dart';
 
 import '../widgets/loader_widget.dart';
+import 'package:geocoding/geocoding.dart' as geo;
 
 class Signin extends StatefulWidget {
   const Signin({Key? key}) : super(key: key);
@@ -22,14 +27,20 @@ class Signin extends StatefulWidget {
 class _SigninState extends State<Signin> {
   final _phonenumberController = TextEditingController();
   final _otpController = TextEditingController();
-
+  bool locationAccess = true;
   String get phonenumber => _phonenumberController.text.trim();
   String get otp => _otpController.text.trim();
   String? verifiedId;
+  Location location = Location();
+  @override
+  void initState() {
+    super.initState();
+    turnonLocation();
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      height: MediaQuery.of(context).size.height,
       heading: "LOGIN",
       child: Column(
         mainAxisSize: MainAxisSize.max,
@@ -133,33 +144,11 @@ class _SigninState extends State<Signin> {
           AuthButton(
             onTap: () async {
               if (await ConnectivityCheck().checkConnectivity()) {
-                if (_otpController.text != "" &&
-                    _otpController.text.length == 6) {
-                  LoaderWidget().showLoader(context,
-                      showLoader: true, text: "Please wait..");
-                  await FirebaseAuth.instance
-                      .signInWithCredential(PhoneAuthProvider.credential(
-                          verificationId: verifiedId ?? "",
-                          smsCode: _otpController.text))
-                      .then((value) => {
-                            LoaderWidget()
-                                .showLoader(context, showLoader: false),
-                            Navigator.of(context).pushNamed("/qrgenerator",
-                                arguments: QrArguments(
-                                    DateTime.now().toString(),
-                                    "+91" + _phonenumberController.text))
-                          })
-                      .onError((error, stackTrace) => {
-                            LoaderWidget()
-                                .showLoader(context, showLoader: false),
-                            Fluttertoast.showToast(
-                                msg:
-                                    "The sms code has expired/OTP is wrong. Please re-send the verification code to try again",
-                                backgroundColor: Colors.red)
-                          });
+                if (await Permission
+                    .locationWhenInUse.serviceStatus.isEnabled) {
+                  await updateData(context);
                 } else {
-                  Fluttertoast.showToast(
-                      msg: "Invalid otp", backgroundColor: Colors.red);
+                  turnonLocation();
                 }
               } else {
                 Fluttertoast.showToast(
@@ -172,5 +161,38 @@ class _SigninState extends State<Signin> {
         ],
       ),
     );
+  }
+
+  turnonLocation() async {
+    await location.requestService();
+    await Permission.locationWhenInUse.request();
+    if (await Permission.locationWhenInUse.serviceStatus.isDisabled) {
+      FlutterToast.showToast("Turn on location to login", color: Colors.red);
+    }
+  }
+
+  Future<void> updateData(BuildContext context) async {
+    if (_otpController.text != "" && _otpController.text.length == 6) {
+      LoaderWidget()
+          .showLoader(context, showLoader: true, text: "Please wait..");
+      await FirebaseAuth.instance
+          .signInWithCredential(PhoneAuthProvider.credential(
+              verificationId: verifiedId ?? "", smsCode: _otpController.text))
+          .then((value) => {
+                LoaderWidget().showLoader(context, showLoader: false),
+                Navigator.of(context).pushReplacementNamed("/qrgenerator",
+                    arguments: QrArguments(DateTime.now().toString(),
+                        "+91" + _phonenumberController.text))
+              })
+          .onError((error, stackTrace) => {
+                LoaderWidget().showLoader(context, showLoader: false),
+                Fluttertoast.showToast(
+                    msg:
+                        "The sms code has expired/OTP is wrong. Please re-send the verification code to try again",
+                    backgroundColor: Colors.red)
+              });
+    } else {
+      Fluttertoast.showToast(msg: "Invalid otp", backgroundColor: Colors.red);
+    }
   }
 }
