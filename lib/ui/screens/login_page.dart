@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:location/location.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -15,7 +15,7 @@ import 'package:qr_generator/ui/widgets/text_widget.dart';
 import 'package:qr_generator/ui/widgets/toast_widget.dart';
 
 import '../widgets/loader_widget.dart';
-import 'package:geocoding/geocoding.dart' as geo;
+
 
 class Signin extends StatefulWidget {
   const Signin({Key? key}) : super(key: key);

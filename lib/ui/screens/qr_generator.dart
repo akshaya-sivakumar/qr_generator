@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dart_ipify/dart_ipify.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,7 +24,7 @@ import 'package:qr_generator/ui/widgets/network_check.dart';
 import 'package:qr_generator/ui/widgets/scaffold.dart';
 
 import 'package:qr_generator/ui/widgets/text_widget.dart';
-import 'package:qr_generator/ui/widgets/toast_widget.dart';
+
 import 'package:screenshot/screenshot.dart';
 
 class QrArguments {
@@ -58,7 +58,7 @@ class _QrGeneratorState extends State<QrGenerator> {
 
   getUserLocation() async {
     LocationData? myLocation;
-    String? error;
+
     Location location = Location();
     try {
       myLocation = await location.getLocation();
@@ -66,11 +66,8 @@ class _QrGeneratorState extends State<QrGenerator> {
       _getAddressFromLatLng(
           myLocation.latitude ?? 0, myLocation.longitude ?? 0);
     } on PlatformException catch (e) {
-      if (e.code == 'PERMISSION_DENIED') {
-        error = 'please grant permission';
-      }
+      if (e.code == 'PERMISSION_DENIED') {}
       if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {}
-      debugPrint(e.message);
     }
   }
 
@@ -94,14 +91,13 @@ class _QrGeneratorState extends State<QrGenerator> {
 
     LoaderWidget().showLoader(context, showLoader: true, text: "Saving..");
     ipv6 = await Ipify.ipv4();
-    print(ipv6);
   }
 
   Future<void> getData({bool loading = false}) async {
     lastloginList = [];
     if (loading) {
       LoaderWidget().showLoader(context, showLoader: true, text: "Saving..");
-    } 
+    }
     var data = await FirebaseFirestore.instance
         .collection("login_details")
         .where("phonenumber", isEqualTo: widget.qrArguments.phoneNumber)
