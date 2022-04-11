@@ -180,7 +180,7 @@ class _SigninState extends State<Signin> {
               verificationId: verifiedId ?? "", smsCode: _otpController.text))
           .then((value) => {
                 LoaderWidget().showLoader(context, showLoader: false),
-                Navigator.of(context).pushReplacementNamed("/qrgenerator",
+                Navigator.of(context).pushNamed("/qrgenerator",
                     arguments: QrArguments(DateTime.now().toString(),
                         "+91" + _phonenumberController.text))
               })
